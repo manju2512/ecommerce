@@ -780,3 +780,124 @@ footer {
     margin-top: 4rem;
     border-top: 1px solid #e5e7eb;
 }
+
+/* =============================================
+   MOBILE RESPONSIVE — screens under 768px
+   ============================================= */
+@media (max-width: 768px) {
+
+    /* Navbar — stack logo and links */
+    .nav-container {
+        flex-direction: column;
+        height: auto;
+        padding: 1rem 0;
+        gap: 0.8rem;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+
+    /* Hero — smaller text on mobile */
+    .hero { padding: 3rem 1rem; }
+    .hero h1 { font-size: 2rem; }
+    .hero p  { font-size: 1rem; }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Category grid — 2 columns on mobile */
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Products — 1 column on mobile */
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Filter bar — stack vertically */
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+        width: 100%;
+    }
+
+    /* Cart — stack summary below items */
+    .cart-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .order-summary-card {
+        position: static;
+    }
+
+    /* Admin table — make it scrollable horizontally */
+    .admin-table,
+    .orders-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Stats grid — 2 columns */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Modal — full screen on mobile */
+    .modal {
+        margin: 1rem;
+        max-width: 100%;
+        max-height: 95vh;
+    }
+
+    /* Page padding */
+    .page {
+        padding: 0 1rem;
+        margin: 1rem auto;
+    }
+
+    /* Auth card — full width */
+    .auth-card {
+        padding: 1.5rem;
+    }
+
+    /* Admin tabs */
+    .admin-tabs {
+        overflow-x: auto;
+    }
+
+    .tab-btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    /* Page title */
+    .page-title { font-size: 1.5rem; }
+}
+
+/* Extra small phones — under 400px */
+@media (max-width: 400px) {
+
+    .hero h1 { font-size: 1.6rem; }
+
+    .nav-logo { font-size: 1.2rem; }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

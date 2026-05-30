@@ -68,7 +68,7 @@
                             <tr>
                                 <td><strong>#ORD-${order.id}</strong></td>
                                 <td>${formatDate(order.orderDate)}</td>
-                                <td><strong style="color:#e94560;">$${order.totalAmount.toFixed(2)}</strong></td>
+                                <td><strong style="color:#e94560;">₹${order.totalAmount.toFixed(2)}</strong></td>
                                 <td><span class="status-badge ${getStatusClass(order.status)}">${order.status}</span></td>
                             </tr>
                         `).join("")}

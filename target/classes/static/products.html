@@ -131,7 +131,7 @@
                     <div class="product-name">${p.name}</div>
                     <div class="product-desc">${p.description || ""}</div>
                     <div class="product-footer">
-                        <span class="product-price">$${p.price.toFixed(2)}</span>
+                        <span class="product-price">₹${p.price.toFixed(2)}</span>
                         <button class="btn-add-cart" onclick="addToCart(${p.id}, '${p.name}', ${p.price}, '${p.imageUrl || ""}')">
                             Add to Cart
                         </button>
