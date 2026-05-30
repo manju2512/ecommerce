@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Shop | Cart</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav id="navbar"></nav>
+
+<div class="page">
+    <h1 class="page-title">🛒 Shopping Cart</h1>
+    <p class="page-subtitle">Review your items before checkout</p>
+
+    <div id="message"></div>
+
+    <!-- Cart content — rendered by JS -->
+    <div id="cartContent"></div>
+</div>
+
+<footer><p>© 2024 E-Shop</p></footer>
+
+<script src="/js/config.js"></script>
+<script>
+
+    window.onload = function () {
+        renderNavbar();
+        renderCart();
+    };
+
+    // ==========================================
+    // RENDER CART
+    // ==========================================
+    function renderCart() {
+        const cart    = getCart();
+        const content = document.getElementById("cartContent");
+
+        if (cart.length === 0) {
+            content.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">🛒</div>
+                    <h3>Your cart is empty</h3>
+                    <p>Add some products first!</p>
+                    <br>
+                    <button class="btn-primary" onclick="window.location.href='/products.html'">Browse Products</button>
+                </div>`;
+            return;
+        }
+
+        // Calculate totals
+        const subtotal  = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const shipping  = subtotal > 500 ? 0 : 15;
+        const tax       = subtotal * 0.08;
+        const total     = subtotal + shipping + tax;
+        const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+        content.innerHTML = `
+            <div class="cart-layout">
+
+                <!-- LEFT: Cart Items -->
+                <div id="cartItems">
+                    ${cart.map(item => `
+                        <div class="cart-item">
+                            <img src="${item.imageUrl || 'https://via.placeholder.com/80?text=Item'}"
+                                 alt="${item.name}"
+                                 onerror="this.src='https://via.placeholder.com/80?text=Item'" />
+                            <div class="cart-item-info">
+                                <div class="cart-item-name">${item.name}</div>
+                                <div class="cart-item-price">$${item.price.toFixed(2)} each</div>
+                                <div class="qty-controls">
+                                    <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+                                    <span class="qty-num">${item.quantity}</span>
+                                    <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+                                    <span style="margin-left:10px; color:#666; font-size:0.85rem;">
+                                        = $${(item.price * item.quantity).toFixed(2)}
+                                    </span>
+                                </div>
+                            </div>
+                            <button class="btn-remove" onclick="removeItem(${item.id})">Remove</button>
+                        </div>
+                    `).join("")}
+
+                    <button onclick="clearCart(); renderCart();"
+                            style="margin-top:1rem; background:#f3f4f6; border:none; padding:10px 20px;
+                                   border-radius:8px; cursor:pointer; color:#666; font-weight:600;">
+                        🗑️ Clear Cart
+                    </button>
+                </div>
+
+                <!-- RIGHT: Order Summary -->
+                <div class="order-summary-card">
+                    <h3>Order Summary</h3>
+                    <div class="summary-row"><span>Items (${itemCount})</span> <span>$${subtotal.toFixed(2)}</span></div>
+                    <div class="summary-row"><span>Shipping</span> <span>${shipping === 0 ? "FREE" : "$" + shipping.toFixed(2)}</span></div>
+                    <div class="summary-row"><span>Tax (8%)</span> <span>$${tax.toFixed(2)}</span></div>
+                    <div class="summary-row total"><span>Total</span> <span>$${total.toFixed(2)}</span></div>
+
+                    ${shipping === 0 ? '<div class="alert alert-success" style="margin:1rem 0; font-size:0.8rem;">🎉 Free shipping on orders over $500!</div>' : ''}
+
+                    <button class="btn-block" style="margin-top:1rem;" onclick="placeOrder(${total.toFixed(2)})">
+                        Place Order — $${total.toFixed(2)}
+                    </button>
+                </div>
+            </div>`;
+    }
+
+    // ==========================================
+    // CHANGE QUANTITY
+    // ==========================================
+    function changeQty(id, delta) {
+        let cart = getCart();
+        const item = cart.find(i => i.id === id);
+        if (!item) return;
+
+        item.quantity += delta;
+
+        // Remove if quantity drops to 0
+        if (item.quantity <= 0) {
+            cart = cart.filter(i => i.id !== id);
+        }
+
+        saveCart(cart);
+        updateCartBadge();
+        renderCart();
+    }
+
+    // ==========================================
+    // REMOVE ITEM
+    // ==========================================
+    function removeItem(id) {
+        let cart = getCart().filter(i => i.id !== id);
+        saveCart(cart);
+        updateCartBadge();
+        renderCart();
+    }
+
+    // ==========================================
+    // PLACE ORDER — calls POST /api/orders
+    // ==========================================
+    async function placeOrder(total) {
+        const user    = getUser();
+        const msgBox  = document.getElementById("message");
+
+        if (!user) {
+            msgBox.innerHTML = '<div class="alert alert-error">Please login to place an order.</div>';
+            setTimeout(() => window.location.href = "/login.html", 1500);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/api/orders`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId:      user.id,
+                    totalAmount: parseFloat(total),
+                    status:      "Pending"
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Clear cart after successful order
+                saveCart([]);
+                updateCartBadge();
+                msgBox.innerHTML = '<div class="alert alert-success">✅ Order placed successfully! Redirecting to orders...</div>';
+                setTimeout(() => window.location.href = "/orders.html", 2000);
+            } else {
+                msgBox.innerHTML = `<div class="alert alert-error">${data.message}</div>`;
+            }
+
+        } catch (error) {
+            msgBox.innerHTML = '<div class="alert alert-error">Could not connect to server.</div>';
+        }
+    }
+
+    // Override clearCart to also re-render
+    function clearCart() {
+        saveCart([]);
+        updateCartBadge();
+    }
+</script>
+
+</body>
+</html>

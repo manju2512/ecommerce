@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Shop | Products</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav id="navbar"></nav>
+
+<div class="page">
+    <h1 class="page-title">All Products</h1>
+    <p class="page-subtitle">Browse our full catalog</p>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Search products..." oninput="filterProducts()" />
+
+        <select id="categoryFilter" title="Filter by category" onchange="filterProducts()">
+            <option value="">All Categories</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Sports">Sports</option>
+            <option value="Kitchen">Kitchen</option>
+        </select>
+
+        <select id="sortFilter" title="Sort products" onchange="filterProducts()">
+            <option value="">Sort: Default</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+            <option value="name-asc">Name: A → Z</option>
+        </select>
+    </div>
+
+    <!-- PRODUCT GRID — filled by JavaScript -->
+    <div id="productGrid" class="product-grid">
+        <div class="loading">Loading products...</div>
+    </div>
+
+    <!-- Toast notification for "Added to cart" -->
+    <div id="toast" style="
+        display:none; position:fixed; bottom:2rem; right:2rem;
+        background:#1a1a2e; color:white; padding:14px 20px;
+        border-radius:10px; font-weight:600; z-index:999;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+    </div>
+</div>
+
+<footer><p>© 2024 E-Shop</p></footer>
+
+<script src="/js/config.js"></script>
+<script>
+    let allProducts = []; // Store all products so we can filter locally
+
+    // ==========================================
+    // ON PAGE LOAD — fetch products from API
+    // ==========================================
+    window.onload = async function () {
+        renderNavbar();
+
+        // Check if a category was passed in the URL e.g. /products.html?category=Electronics
+        const params   = new URLSearchParams(window.location.search);
+        const category = params.get("category");
+        if (category) {
+            document.getElementById("categoryFilter").value = category;
+        }
+
+        await loadProducts();
+    };
+
+    // ==========================================
+    // LOAD PRODUCTS FROM SPRING BOOT API
+    // ==========================================
+    async function loadProducts() {
+        try {
+            // GET /api/products — returns JSON array of products
+            const response = await fetch(`${API_URL}/api/products`);
+            allProducts    = await response.json();
+            filterProducts(); // Apply any filters/sort
+        } catch (error) {
+            document.getElementById("productGrid").innerHTML =
+                '<div class="empty-state"><div class="icon">⚠️</div><h3>Could not load products.</h3><p>Make sure the server is running.</p></div>';
+        }
+    }
+
+    // ==========================================
+    // FILTER + SORT PRODUCTS
+    // ==========================================
+    function filterProducts() {
+        const search   = document.getElementById("searchInput").value.toLowerCase();
+        const category = document.getElementById("categoryFilter").value;
+        const sort     = document.getElementById("sortFilter").value;
+
+        // Filter
+        let filtered = allProducts.filter(p => {
+            const matchSearch   = p.name.toLowerCase().includes(search) ||
+                                  (p.description && p.description.toLowerCase().includes(search));
+            const matchCategory = !category || p.category === category;
+            return matchSearch && matchCategory;
+        });
+
+        // Sort
+        if (sort === "price-asc")  filtered.sort((a, b) => a.price - b.price);
+        if (sort === "price-desc") filtered.sort((a, b) => b.price - a.price);
+        if (sort === "name-asc")   filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+        renderProducts(filtered);
+    }
+
+    // ==========================================
+    // RENDER PRODUCT CARDS
+    // ==========================================
+    function renderProducts(products) {
+        const grid = document.getElementById("productGrid");
+
+        if (products.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><h3>No products found.</h3><p>Try a different search or filter.</p></div>';
+            return;
+        }
+
+        grid.innerHTML = products.map(p => `
+            <div class="product-card">
+                <img class="product-img"
+                     src="${p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'}"
+                     alt="${p.name}"
+                     onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'" />
+                <div class="product-body">
+                    <span class="product-category">${p.category || "General"}</span>
+                    <div class="product-name">${p.name}</div>
+                    <div class="product-desc">${p.description || ""}</div>
+                    <div class="product-footer">
+                        <span class="product-price">$${p.price.toFixed(2)}</span>
+                        <button class="btn-add-cart" onclick="addToCart(${p.id}, '${p.name}', ${p.price}, '${p.imageUrl || ""}')">
+                            Add to Cart
+                        </button>
+                    </div>
+                    <div style="font-size:0.8rem; color:#999; margin-top:6px;">
+                        ${p.stock > 0 ? `✅ In stock (${p.stock})` : '❌ Out of stock'}
+                    </div>
+                </div>
+            </div>
+        `).join("");
+    }
+
+    // ==========================================
+    // ADD TO CART
+    // ==========================================
+    function addToCart(id, name, price, imageUrl) {
+        let cart = getCart();
+
+        // Check if item already in cart
+        const existing = cart.find(item => item.id === id);
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            cart.push({ id, name, price, imageUrl, quantity: 1 });
+        }
+
+        saveCart(cart);
+        updateCartBadge();
+        showToast(`✅ "${name}" added to cart!`);
+    }
+
+    // ==========================================
+    // TOAST NOTIFICATION
+    // ==========================================
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 2500);
+    }
+</script>
+
+</body>
+</html>

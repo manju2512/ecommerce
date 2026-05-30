@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Shop | Register</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav id="navbar"></nav>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h2>Create Account 🚀</h2>
+        <p class="subtitle">Join E-Shop and start shopping</p>
+
+        <div id="message"></div>
+
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" placeholder="John Doe" required />
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="you@example.com" required />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Minimum 6 characters" required />
+        </div>
+
+        <button class="btn-block" onclick="handleRegister()">Create Account</button>
+
+        <div class="auth-footer">
+            Already have an account? <a href="/login.html">Login here</a>
+        </div>
+    </div>
+</div>
+
+<script src="/js/config.js"></script>
+<script>
+    renderNavbar();
+
+    if (getUser()) window.location.href = "/index.html";
+
+    async function handleRegister() {
+        const name     = document.getElementById("name").value.trim();
+        const email    = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const msgBox   = document.getElementById("message");
+
+        if (!name || !email || !password) {
+            msgBox.innerHTML = '<div class="alert alert-error">Please fill in all fields.</div>';
+            return;
+        }
+
+        if (password.length < 6) {
+            msgBox.innerHTML = '<div class="alert alert-error">Password must be at least 6 characters.</div>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/api/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                msgBox.innerHTML = '<div class="alert alert-success">Account created! Redirecting to login...</div>';
+                setTimeout(() => window.location.href = "/login.html", 1500);
+            } else {
+                msgBox.innerHTML = `<div class="alert alert-error">${data.message}</div>`;
+            }
+
+        } catch (error) {
+            msgBox.innerHTML = '<div class="alert alert-error">Cannot connect to server.</div>';
+        }
+    }
+</script>
+
+</body>
+</html>

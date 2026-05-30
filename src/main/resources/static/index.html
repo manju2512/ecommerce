@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Shop | Home</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Navbar is injected here by config.js renderNavbar() -->
+<nav id="navbar"></nav>
+
+<!-- HERO SECTION -->
+<section class="hero">
+    <h1>Welcome to <span>E-Shop</span></h1>
+    <p>Discover thousands of products at unbeatable prices. Shop smarter today.</p>
+    <div class="hero-buttons">
+        <button class="btn-primary" onclick="window.location.href='/products.html'">
+            🛍️ Shop Now
+        </button>
+        <button class="btn-secondary" onclick="window.location.href='/register.html'">
+            Create Account
+        </button>
+    </div>
+</section>
+
+<!-- CATEGORIES SECTION -->
+<section class="categories-section">
+    <h2>Shop by Category</h2>
+    <div class="category-grid">
+        <a href="/products.html?category=Electronics" class="category-card">
+            <div class="icon">💻</div>
+            <div class="label">Electronics</div>
+        </a>
+        <a href="/products.html?category=Clothing" class="category-card">
+            <div class="icon">👕</div>
+            <div class="label">Clothing</div>
+        </a>
+        <a href="/products.html?category=Sports" class="category-card">
+            <div class="icon">⚽</div>
+            <div class="label">Sports</div>
+        </a>
+        <a href="/products.html?category=Kitchen" class="category-card">
+            <div class="icon">🍳</div>
+            <div class="label">Kitchen</div>
+        </a>
+        <a href="/products.html" class="category-card">
+            <div class="icon">🛒</div>
+            <div class="label">All Products</div>
+        </a>
+    </div>
+</section>
+
+<footer>
+    <p>© 2024 E-Shop. Built with Java Spring Boot + JDBC + MySQL.</p>
+</footer>
+
+<script src="/js/config.js"></script>
+<script>
+    // Render the navbar when page loads
+    renderNavbar();
+</script>
+
+</body>
+</html>

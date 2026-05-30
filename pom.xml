@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        INTERVIEW POINT: Spring Boot Parent POM
+        - Provides default configurations and dependency management
+        - You don't need to specify versions for most Spring libraries
+        - It uses "convention over configuration" principle
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.3</version>
+    </parent>
+
+    <groupId>com.ecommerce</groupId>
+    <artifactId>ecommerce</artifactId>
+    <version>1.0.0</version>
+    <name>E-Commerce Application</name>
+    <description>Simple E-Commerce app using Spring Boot, JDBC, MySQL</description>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <!--
+            spring-boot-starter-web
+            PURPOSE: Lets you build REST APIs and serve HTML pages
+            INCLUDES: Spring MVC, Tomcat (embedded server), Jackson (JSON converter)
+            INTERVIEW: "Tomcat runs embedded so you don't need to deploy a WAR file separately"
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!--
+            spring-boot-starter-jdbc
+            PURPOSE: Gives you JdbcTemplate to run SQL queries easily
+            INTERVIEW: "JDBC is lower level than JPA. With JdbcTemplate I write raw SQL,
+                        which gives me full control. JPA auto-generates SQL but hides complexity."
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!--
+            mysql-connector-j
+            PURPOSE: JDBC driver that lets Java talk to MySQL database
+            INTERVIEW: "The driver translates Java database calls into MySQL protocol"
+        -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--
+            spring-boot-starter-security
+            PURPOSE: We use it ONLY for BCryptPasswordEncoder to hash passwords
+            INTERVIEW: "We never store plain text passwords. BCrypt is a one-way hash.
+                        Even if the database is stolen, passwords are unreadable."
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Testing dependency -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Allows: mvn spring-boot:run to start the app -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

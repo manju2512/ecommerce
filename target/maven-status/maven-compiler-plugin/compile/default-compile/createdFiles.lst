@@ -1,0 +1,11 @@
+com\ecommerce\model\Order.class
+com\ecommerce\repository\ProductRepository.class
+com\ecommerce\model\Product.class
+com\ecommerce\EcommerceApplication.class
+com\ecommerce\config\SecurityConfig.class
+com\ecommerce\controller\UserController.class
+com\ecommerce\repository\OrderRepository.class
+com\ecommerce\controller\ProductController.class
+com\ecommerce\repository\UserRepository.class
+com\ecommerce\model\User.class
+com\ecommerce\controller\OrderController.class
